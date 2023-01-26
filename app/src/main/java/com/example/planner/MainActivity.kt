@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp(modifier: Modifier = Modifier) {
     Surface(modifier, color = MaterialTheme.colorScheme.background) {
-            TasksList()
+        TasksList()
     }
 }
 
@@ -43,14 +43,14 @@ private fun TasksList(
     tasks: List<String> = List(1000) { "$it" }
 ) {
     LazyColumn(modifier = modifier.padding(vertical = 4.dp, horizontal = 8.dp)) {
-        items(items = tasks) {task ->
+        items(items = tasks) { task ->
             TaskCard(task = task)
         }
     }
 }
 
 
-@Preview(showBackground = true)
+@Preview(showBackground = false)
 @Composable
 fun DefaultPreview() {
     PlannerTheme {
