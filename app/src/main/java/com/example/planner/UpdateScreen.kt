@@ -39,12 +39,18 @@ fun UpdateScreen() {
         var category by remember { mutableStateOf("") }
 
         OutlinedTextField(
+            colors = TextFieldDefaults.outlinedTextFieldColors(unfocusedBorderColor = MaterialTheme.colorScheme.outline),
             value = task,
             onValueChange = { task = it },
             label = { Text("Task") },
             modifier = Modifier
                 .fillMaxWidth()
-                .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessHigh))
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessHigh
+                    )
+                )
                 .padding(vertical = 8.dp)
                 .onFocusChanged {
                     isTaskClicked = !isTaskClicked
@@ -52,6 +58,7 @@ fun UpdateScreen() {
         )
 
         OutlinedTextField(
+            colors = TextFieldDefaults.outlinedTextFieldColors(unfocusedBorderColor = MaterialTheme.colorScheme.outline),
             value = category,
             onValueChange = { category = it },
             label = { Text("Category") },

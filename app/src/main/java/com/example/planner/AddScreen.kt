@@ -39,6 +39,7 @@ fun AddScreen() {
         var category by remember { mutableStateOf("") }
 
         OutlinedTextField(
+            colors = TextFieldDefaults.outlinedTextFieldColors(unfocusedBorderColor = MaterialTheme.colorScheme.outline),
             value = task,
             onValueChange = { task = it },
             label = { Text("Task") },
@@ -52,6 +53,7 @@ fun AddScreen() {
         )
 
         OutlinedTextField(
+            colors = TextFieldDefaults.outlinedTextFieldColors(unfocusedBorderColor = MaterialTheme.colorScheme.outline),
             value = category,
             onValueChange = { category = it },
             label = { Text("Category") },
