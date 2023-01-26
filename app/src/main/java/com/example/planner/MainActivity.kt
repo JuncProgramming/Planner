@@ -1,16 +1,14 @@
 package com.example.planner
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.example.planner.ui.theme.PlannerTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,10 +16,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             PlannerTheme {
-                // A surface container using the 'background' color from the theme
+                // A surface container using the "background" color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     MyApp(Modifier.fillMaxSize())
                 }
@@ -37,23 +35,14 @@ fun MyApp(modifier: Modifier = Modifier) {
     }
 }
 
-@Composable
-private fun TasksList(
-    modifier: Modifier = Modifier,
-    tasks: List<String> = List(1000) { "$it" }
-) {
-    LazyColumn(modifier = modifier.padding(vertical = 4.dp, horizontal = 8.dp)) {
-        items(items = tasks) { task ->
-            TaskCard(task = task)
-        }
-    }
-}
-
-
-@Preview(showBackground = false)
+@Preview(name = "LightMode", showBackground = true)
+@Preview(name = "DarkMode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "FullPreview", showBackground = true, showSystemUi = true)
 @Composable
 fun DefaultPreview() {
     PlannerTheme {
-        TaskCard("Android")
+        Surface(modifier = Modifier, color = MaterialTheme.colorScheme.background) {
+            TasksList()
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.planner
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -46,6 +47,7 @@ fun CardContent(task: String) {
             ) {
                 Text(
                     text = "Category",
+                    style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
@@ -71,9 +73,10 @@ fun CardContent(task: String) {
 }
 
 @Composable
-@Preview
+@Preview(name = "LightMode")
+@Preview(name = "DarkMode", uiMode = Configuration.UI_MODE_NIGHT_YES)
 fun TaskCardPreview() {
-    PlannerTheme() {
+    PlannerTheme {
         TaskCard(task = "Preview")
     }
 }
