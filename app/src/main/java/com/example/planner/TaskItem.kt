@@ -20,7 +20,7 @@ fun TaskCard(task: String) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ), modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp)
+        ), modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp)
     ) {
         CardContent(task)
     }
@@ -31,7 +31,7 @@ fun CardContent(task: String) {
 
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant,
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp)
+        modifier = Modifier
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -44,7 +44,10 @@ fun CardContent(task: String) {
                     .weight(1f)
                     .padding(12.dp)
             ) {
-                Text(text = "Category", color = MaterialTheme.colorScheme.primary)
+                Text(
+                    text = "Category",
+                    color = MaterialTheme.colorScheme.primary
+                )
                 Text(
                     text = task,
                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.ExtraBold),
