@@ -45,7 +45,12 @@ fun AddScreen() {
             label = { Text("Task") },
             modifier = Modifier
                 .fillMaxWidth()
-                .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessHigh))
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessHigh
+                    )
+                )
                 .padding(vertical = 8.dp)
                 .onFocusChanged {
                     isTaskClicked = !isTaskClicked
@@ -76,8 +81,6 @@ fun AddScreen() {
                 .padding(vertical = 12.dp)
         ) {
             Text(text = "Add")
-
-
         }
     }
 }
