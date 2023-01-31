@@ -1,13 +1,13 @@
 package com.example.planner
 
 import android.content.res.Configuration
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,18 +19,40 @@ import com.example.planner.ui.theme.PlannerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UpdateScreen() {
+fun UpdateScreenLayout() {
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("Planner") }, colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                titleContentColor = MaterialTheme.colorScheme.background,
+                navigationIconContentColor = MaterialTheme.colorScheme.background
+            ), navigationIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.ArrowBack,
+                    contentDescription = "Navigate back",
+                    modifier = Modifier.padding(16.dp)
+                )
+            })
+        },
+    ) { padding ->
+        UpdateScreen(
+            Modifier.padding(paddingValues = padding)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UpdateScreen(modifier: Modifier = Modifier) {
 
     var isTaskClicked by remember { mutableStateOf(false) }
     var isCategoryClicked by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(
-                start = 16.dp, end = 16.dp, top = if (isTaskClicked) {
-                    0.dp
-                } else 4.dp
+                horizontal = 16.dp, vertical = 4.dp
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -38,37 +60,24 @@ fun UpdateScreen() {
         var task by remember { mutableStateOf("") }
         var category by remember { mutableStateOf("") }
 
-        OutlinedTextField(
-            colors = TextFieldDefaults.outlinedTextFieldColors(unfocusedBorderColor = MaterialTheme.colorScheme.outline),
+        OutlinedTextField(colors = TextFieldDefaults.outlinedTextFieldColors(unfocusedBorderColor = MaterialTheme.colorScheme.outline),
             value = task,
             onValueChange = { task = it },
             label = { Text("Task") },
             modifier = Modifier
                 .fillMaxWidth()
-                .animateContentSize(
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessHigh
-                    )
-                )
                 .padding(vertical = 8.dp)
                 .onFocusChanged {
                     isTaskClicked = !isTaskClicked
-                }
-        )
+                })
 
-        OutlinedTextField(
-            colors = TextFieldDefaults.outlinedTextFieldColors(unfocusedBorderColor = MaterialTheme.colorScheme.outline),
+        OutlinedTextField(colors = TextFieldDefaults.outlinedTextFieldColors(unfocusedBorderColor = MaterialTheme.colorScheme.outline),
             value = category,
             onValueChange = { category = it },
             label = { Text("Category") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    top = if (isCategoryClicked) {
-                        0.dp
-                    } else 4.dp
-                )
+                .padding(vertical = 4.dp)
                 .onFocusChanged {
                     isCategoryClicked = !isCategoryClicked
                 }
@@ -81,12 +90,9 @@ fun UpdateScreen() {
                 .padding(vertical = 12.dp)
         ) {
             Text(text = "Update")
-
-
         }
     }
 }
-
 
 @Composable
 @Preview(name = "LightMode", showBackground = true)
@@ -94,7 +100,7 @@ fun UpdateScreen() {
 fun UpdateScreenPreview() {
     PlannerTheme {
         Surface(modifier = Modifier, color = MaterialTheme.colorScheme.background) {
-            UpdateScreen()
+            UpdateScreenLayout()
         }
     }
 }

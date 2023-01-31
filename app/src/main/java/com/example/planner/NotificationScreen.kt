@@ -16,7 +16,7 @@ import com.example.planner.ui.theme.PlannerTheme
 @Composable
 fun NotificationScreen() {
     Button(
-        onClick = {  }, modifier = Modifier
+        onClick = { }, modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp)
     ) {

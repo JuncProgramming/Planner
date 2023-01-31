@@ -7,22 +7,26 @@ import androidx.navigation.compose.composable
 
 @Composable
 fun Navigation(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Screen.TasksList.route)
-    {
+    NavHost(navController = navController, startDestination = Screen.TasksList.route) {
         composable(
             route = Screen.TasksList.route
         ) {
-            TasksList(navController = navController)
+            TasksListLayout(navController = navController)
         }
         composable(
             route = Screen.AddScreen.route
         ) {
-            AddScreen()
+            AddScreenLayout()
         }
         composable(
             route = Screen.UpdateScreen.route
         ) {
-            UpdateScreen()
+            UpdateScreenLayout()
+        }
+        composable(
+            route = Screen.NotificationScreen.route
+        ) {
+            NotificationScreen()
         }
     }
 }

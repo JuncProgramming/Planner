@@ -26,13 +26,10 @@ fun TaskCard(task: String, navController: NavController) {
         ), modifier = Modifier.padding()
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            modifier = Modifier
+            color = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(12.dp)
+                verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(12.dp)
 
             ) {
                 Column(
@@ -51,7 +48,10 @@ fun TaskCard(task: String, navController: NavController) {
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 }
-                IconButton(onClick = { navController.navigate(route = Screen.UpdateScreen.route) }, modifier = Modifier.size(36.dp)) {
+                IconButton(
+                    onClick = { navController.navigate(route = Screen.UpdateScreen.route) },
+                    modifier = Modifier.size(36.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Filled.Edit,
                         contentDescription = "Edit",
@@ -59,7 +59,10 @@ fun TaskCard(task: String, navController: NavController) {
                         tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
-                IconButton(onClick = { navController.navigate(route = Screen.UpdateScreen.route) }, modifier = Modifier.size(36.dp)) {
+                IconButton(
+                    onClick = { navController.navigate(route = Screen.NotificationScreen.route) },
+                    modifier = Modifier.size(36.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Filled.Notifications,
                         contentDescription = "Notifications",
