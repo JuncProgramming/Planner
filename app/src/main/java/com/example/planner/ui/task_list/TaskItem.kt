@@ -1,72 +1,75 @@
-package com.example.planner
+package com.example.planner.ui.task_list
 
-import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.planner.ui.theme.PlannerTheme
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.planner.data.Task
 
 @Composable
-fun TaskCard(task: String, navController: NavController) {
+fun TaskCard(
+    modifier: Modifier = Modifier,
+    task: Task,
+    onEvent: (TaskListEvent) -> Unit,
+    viewModel: TaskListViewModel = hiltViewModel()
+) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ), modifier = Modifier.padding()
+        ), modifier = modifier.padding()
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier
+            color = MaterialTheme.colorScheme.surfaceVariant, modifier = modifier
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(12.dp)
+                verticalAlignment = Alignment.CenterVertically, modifier = modifier.padding(12.dp)
 
             ) {
                 Column(
-                    modifier = Modifier
+                    modifier = modifier
                         .weight(1f)
                         .padding(12.dp)
                 ) {
+                    task.categoryName?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                     Text(
-                        text = "Category",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = task,
+                        text = task.taskName,
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 }
                 IconButton(
-                    onClick = { navController.navigate(route = Screen.UpdateScreen.route) },
-                    modifier = Modifier.size(36.dp)
+                    onClick = { viewModel.onEvent(TaskListEvent.OnEditTask(task)) },
+                    modifier = modifier.size(36.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Edit,
+                        imageVector = Icons.Rounded.Edit,
                         contentDescription = "Edit",
-                        modifier = Modifier.padding(horizontal = 2.dp),
+                        modifier = modifier.padding(horizontal = 2.dp),
                         tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
                 IconButton(
-                    onClick = { navController.navigate(route = Screen.NotificationScreen.route) },
-                    modifier = Modifier.size(36.dp)
+                    onClick = { }, modifier = modifier.size(36.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Notifications,
+                        imageVector = Icons.Rounded.Notifications,
                         contentDescription = "Notifications",
-                        modifier = Modifier.padding(horizontal = 2.dp),
+                        modifier = modifier.padding(horizontal = 2.dp),
                         tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
@@ -75,13 +78,17 @@ fun TaskCard(task: String, navController: NavController) {
     }
 }
 
+/*
 @Composable
 @Preview(name = "LightMode")
 @Preview(name = "DarkMode", uiMode = Configuration.UI_MODE_NIGHT_YES)
 fun TaskCardPreview() {
     PlannerTheme {
         Surface(modifier = Modifier, color = MaterialTheme.colorScheme.background) {
-            TaskCard(task = "Preview", navController = rememberNavController())
+            TaskCard(
+                task = Task(taskN = "xd", categoryN = "xdr"))
+            )
         }
     }
 }
+*/

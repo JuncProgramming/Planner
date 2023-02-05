@@ -2,31 +2,34 @@ package com.example.planner
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.example.planner.ui.task_add_edit.AddEditScreenLayout
+import com.example.planner.ui.task_list.TasksListLayout
+import com.example.planner.util.Routes
 
 @Composable
 fun Navigation(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Screen.TasksList.route) {
+    NavHost(navController = navController, startDestination = Routes.TASKS_LIST) {
         composable(
-            route = Screen.TasksList.route
+            Routes.TASKS_LIST
         ) {
-            TasksListLayout(navController = navController)
+            TasksListLayout(onNavigate = {
+                navController.navigate(it.route)
+            })
         }
         composable(
-            route = Screen.AddScreen.route
+            route = Routes.ADD_EDIT_TASK + "?taskId={taskId}",
+            arguments = listOf(navArgument(name = "taskId") {
+                type = NavType.IntType
+                defaultValue = -1
+            })
         ) {
-            AddScreenLayout()
-        }
-        composable(
-            route = Screen.UpdateScreen.route
-        ) {
-            UpdateScreenLayout()
-        }
-        composable(
-            route = Screen.NotificationScreen.route
-        ) {
-            NotificationScreen()
+            AddEditScreenLayout(onPopBackStack = {
+                navController.popBackStack()
+            })
         }
     }
 }
