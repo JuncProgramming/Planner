@@ -2,8 +2,10 @@ package com.example.planner.ui.task_list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.planner.R
+import com.example.planner.TaskApp
 import com.example.planner.data.Task
-import com.example.planner.data.repository.TaskRepository
+import com.example.planner.data.repository.TaskRepositoryImplementation
 import com.example.planner.util.Routes
 import com.example.planner.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +16,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class TaskListViewModel @Inject constructor(private val repository: TaskRepository) : ViewModel() {
+class TaskListViewModel @Inject constructor(private val repository: TaskRepositoryImplementation) :
+    ViewModel() {
 
     val tasks = repository.getTasks()
 
@@ -32,14 +35,18 @@ class TaskListViewModel @Inject constructor(private val repository: TaskReposito
                 sendUiEvent(UiEvent.Navigate(Routes.ADD_EDIT_TASK + "?taskId=${event.task.id}"))
             }
             is TaskListEvent.OnDeleteTask -> {
+                val context = TaskApp.instance?.context
                 viewModelScope.launch(Dispatchers.IO) {
                     deletedTask = event.task
                     repository.deleteTask(event.task)
-                    sendUiEvent(
-                        UiEvent.ShowSnackbar(
-                            message = "Task successfully deleted!", action = "Undo"
+                    if (context != null) {
+                        sendUiEvent(
+                            UiEvent.ShowSnackbar(
+                                message = context.getString(R.string.snackbar_deleted),
+                                action = context.getString(R.string.snackbar_action)
+                            )
                         )
-                    )
+                    }
                 }
 
             }

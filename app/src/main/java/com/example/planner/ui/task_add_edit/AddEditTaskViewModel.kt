@@ -6,8 +6,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.planner.R
+import com.example.planner.TaskApp
 import com.example.planner.data.Task
-import com.example.planner.data.repository.TaskRepository
+import com.example.planner.data.repository.TaskRepositoryImplementation
 import com.example.planner.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -17,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditTaskViewModel @Inject constructor(
-    private val repository: TaskRepository, savedStateHandle: SavedStateHandle
+    private val repository: TaskRepositoryImplementation, savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     var task by mutableStateOf<Task?>(null)
@@ -54,13 +56,16 @@ class AddEditTaskViewModel @Inject constructor(
                 categoryName = event.categoryName
             }
             is AddEditTaskEvent.OnSaveTodoClick -> {
+                val context = TaskApp.instance?.context
                 viewModelScope.launch {
                     if (taskName.isBlank()) {
-                        sendUiEvent(
-                            UiEvent.ShowSnackbar(
-                                message = "The title can't be empty"
+                        if (context != null) {
+                            sendUiEvent(
+                                UiEvent.ShowSnackbar(
+                                    message = context.getString(R.string.snackbar_empty)
+                                )
                             )
-                        )
+                        }
                         return@launch
                     }
                     repository.addTask(

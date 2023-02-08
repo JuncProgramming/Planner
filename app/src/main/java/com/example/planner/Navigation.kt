@@ -6,8 +6,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.planner.ui.task_add_edit.AddEditScreenLayout
-import com.example.planner.ui.task_list.TasksListLayout
+import com.example.planner.ui.task_add_edit.AddEditScreen
+import com.example.planner.ui.task_list.TasksListScreen
 import com.example.planner.util.Routes
 
 @Composable
@@ -16,7 +16,7 @@ fun Navigation(navController: NavHostController) {
         composable(
             Routes.TASKS_LIST
         ) {
-            TasksListLayout(onNavigate = {
+            TasksListScreen(onNavigate = {
                 navController.navigate(it.route)
             })
         }
@@ -27,9 +27,10 @@ fun Navigation(navController: NavHostController) {
                 defaultValue = -1
             })
         ) {
-            AddEditScreenLayout(onPopBackStack = {
-                navController.popBackStack()
-            })
+            AddEditScreen(
+                onPopBackStack = {
+                    navController.popBackStack()
+                })
         }
     }
 }

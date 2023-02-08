@@ -1,4 +1,4 @@
-package com.example.planner
+package com.example.planner.ui.task_notification
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
@@ -10,7 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.planner.R
 import com.example.planner.ui.theme.PlannerTheme
 
 @Composable
@@ -20,7 +22,10 @@ fun NotificationScreen() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Coming soon...", style = MaterialTheme.typography.titleLarge)
+        Text(
+            text = stringResource(R.string.coming_soon),
+            style = MaterialTheme.typography.titleLarge
+        )
     }
 }
 

@@ -3,7 +3,7 @@ package com.example.planner.dI
 import android.app.Application
 import androidx.room.Room
 import com.example.planner.data.TaskDatabase
-import com.example.planner.data.repository.TaskRepository
+import com.example.planner.data.repository.TaskRepositoryImplementation
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,7 +22,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideTaskRepository(database: TaskDatabase): TaskRepository {
-        return TaskRepository(database.dao)
+    fun provideTaskRepository(database: TaskDatabase): TaskRepositoryImplementation {
+        return TaskRepositoryImplementation(database.dao)
     }
 }

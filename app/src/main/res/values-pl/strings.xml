@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="show_more">Pokaż więcej</string>
+    <string name="show_less">Pokaż mniej</string>
+    <string name="task_textfield">Zadanie</string>
+    <string name="category_textfield">Kategoria</string>
+    <string name="snackbar_empty">Zadanie nie może być puste</string>
+    <string name="snackbar_deleted">Zadanie pomyślnie usunięte!</string>
+    <string name="snackbar_action">Przywróć</string>
+    <string name="button_cd">Przejdź dalej</string>
+    <string name="navigationButton_cd">Cofnij</string>
+    <string name="editButton_cd">Edytuj</string>
+    <string name="notificationsButton_cd">Powiadomienia</string>
+    <string name="coming_soon">Już wkrótce…</string>
+    <string name="fab_cd">Dodaj</string>
+</resources>
