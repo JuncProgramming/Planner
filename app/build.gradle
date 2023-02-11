@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.planner"
-        minSdk 25
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -49,7 +49,6 @@ android {
 }
 
 dependencies {
-
     // Accompanist
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.27.0"
 

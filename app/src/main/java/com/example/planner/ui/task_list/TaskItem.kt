@@ -1,10 +1,11 @@
 package com.example.planner.ui.task_list
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.planner.R
 import com.example.planner.data.Task
+import com.example.planner.ui.theme.RoundedShapes
 
 @Composable
 fun TaskItem(
@@ -22,7 +24,7 @@ fun TaskItem(
     viewModel: TaskListViewModel = hiltViewModel()
 ) {
     Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedShapes.large,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
@@ -52,22 +54,12 @@ fun TaskItem(
                     )
                 }
                 IconButton(
-                    onClick = { viewModel.onEvent(TaskListEvent.OnEditTask(task)) },
+                    onClick = { viewModel.onEvent(TaskListEvent.OnEditClick(task)) },
                     modifier = modifier.size(36.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Edit,
                         contentDescription = stringResource(R.string.editButton_cd),
-                        modifier = modifier.padding(horizontal = 2.dp),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-                IconButton(
-                    onClick = { }, modifier = modifier.size(36.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Notifications,
-                        contentDescription = stringResource(R.string.notificationsButton_cd),
                         modifier = modifier.padding(horizontal = 2.dp),
                         tint = MaterialTheme.colorScheme.onBackground
                     )

@@ -31,7 +31,7 @@ class TaskListViewModel @Inject constructor(private val repository: TaskReposito
             is TaskListEvent.OnAddTask -> {
                 sendUiEvent(UiEvent.Navigate(Routes.ADD_EDIT_TASK))
             }
-            is TaskListEvent.OnEditTask -> {
+            is TaskListEvent.OnEditClick -> {
                 sendUiEvent(UiEvent.Navigate(Routes.ADD_EDIT_TASK + "?taskId=${event.task.id}"))
             }
             is TaskListEvent.OnDeleteTask -> {

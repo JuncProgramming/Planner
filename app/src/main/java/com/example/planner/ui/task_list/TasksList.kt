@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.planner.R
+import com.example.planner.ui.theme.RoundedShapes
 import com.example.planner.util.UiEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,10 +46,9 @@ fun TasksListScreen(
     }
     Scaffold(
         snackbarHost = {
-            // Reuse default SnackbarHost to have default animation and timing handling
             SnackbarHost(snackbarHostState) { data ->
                 Snackbar(
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedShapes.medium,
                     actionColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.background,
                     snackbarData = data
@@ -57,6 +57,7 @@ fun TasksListScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
+                shape = RoundedShapes.medium,
                 onClick = { viewModel.onEvent(TaskListEvent.OnAddTask) },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.background
@@ -78,12 +79,13 @@ fun TasksListScreen(
         },
     ) { padding ->
         LazyColumn(
+            state = rememberLazyListState(),
             verticalArrangement = spacedBy(12.dp),
-            contentPadding = PaddingValues(vertical = 12.dp),
+            contentPadding = PaddingValues(vertical = 16.dp),
             modifier = modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 12.dp),
+                .padding(horizontal = 16.dp),
         ) {
 
             items(items = tasks.value, key = { task -> task.hashCode() }) { task ->

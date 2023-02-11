@@ -1,4 +1,4 @@
-package com.example.planner
+package com.example.planner.util
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -8,7 +8,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.planner.ui.task_add_edit.AddEditScreen
 import com.example.planner.ui.task_list.TasksListScreen
-import com.example.planner.util.Routes
 
 @Composable
 fun Navigation(navController: NavHostController) {

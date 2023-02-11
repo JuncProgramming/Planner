@@ -1,7 +1,6 @@
 package com.example.planner.ui.task_add_edit
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
@@ -13,6 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.planner.R
+import com.example.planner.ui.theme.RoundedShapes
 import com.example.planner.util.UiEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,7 +41,7 @@ fun AddEditScreen(
             // Reuse default SnackbarHost to have default animation and timing handling
             SnackbarHost(snackbarHostState) { data ->
                 Snackbar(
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedShapes.medium,
                     actionColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.background,
                     snackbarData = data,
