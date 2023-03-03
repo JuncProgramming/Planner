@@ -58,7 +58,7 @@ fun AddEditScreen(
             }
         },
         topBar = {
-            TopAppBar(title = { Text(stringResource(R.string.app_name)) },
+            TopAppBar(title = { Text(stringResource(R.string.planner_name)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.background,

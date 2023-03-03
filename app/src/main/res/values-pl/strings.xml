@@ -9,8 +9,9 @@
     <string name="snackbar_action">Przywróć</string>
     <string name="button_cd">Przejdź dalej</string>
     <string name="navigationButton_cd">Cofnij</string>
-    <string name="editButton_cd">Edytuj</string>
+    <string name="editButton_cd">Edytuj zadanie</string>
     <string name="notificationsButton_cd">Powiadomienia</string>
     <string name="coming_soon">Już wkrótce…</string>
     <string name="fab_cd">Dodaj</string>
+    <string name="planner_name">Planer</string>
 </resources>

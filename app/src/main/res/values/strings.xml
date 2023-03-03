@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Planner</string>
+    <string name="planner_name">Planner</string>
     <string name="show_more">Show more</string>
     <string name="show_less">Show less</string>
     <string name="task_textfield">Task</string>
@@ -9,7 +9,7 @@
     <string name="snackbar_action">Undo</string>
     <string name="button_cd">Proceed</string>
     <string name="navigationButton_cd">Navigate back</string>
-    <string name="editButton_cd">Edit</string>
+    <string name="editButton_cd">Edit task</string>
     <string name="notificationsButton_cd">Notifications</string>
     <string name="coming_soon">Coming soon…</string>
     <string name="fab_cd">Add</string>
