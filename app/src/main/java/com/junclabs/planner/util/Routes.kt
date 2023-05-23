@@ -1,6 +1,8 @@
 package com.junclabs.planner.util
 
-object Routes {
-    const val TASKS_LIST = "tasks_list"
-    const val ADD_EDIT_TASK = "add_edit_task"
+sealed class Routes(val route: String) {
+    object TASKSLIST: Routes(route = "tasks_list")
+    object ADDEDITTASK: Routes(route = "add_edit_task")
+    object COLDSHOWER: Routes(route = "cold_shower")
+    object SETTINGS: Routes(route = "settings")
 }

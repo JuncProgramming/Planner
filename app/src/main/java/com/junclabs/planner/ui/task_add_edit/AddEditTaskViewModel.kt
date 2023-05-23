@@ -1,11 +1,13 @@
 package com.junclabs.planner.ui.task_add_edit
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.junclabs.planner.NotificationService
 import com.junclabs.planner.R
 import com.junclabs.planner.TaskApp
 import com.junclabs.planner.data.Task
@@ -19,8 +21,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditTaskViewModel @Inject constructor(
-    private val repository: TaskRepositoryImplementation, savedStateHandle: SavedStateHandle
+    private val repository: TaskRepositoryImplementation, savedStateHandle: SavedStateHandle, application: Application
 ) : ViewModel() {
+
+    private val service = NotificationService(context = application)
 
     var task by mutableStateOf<Task?>(null)
         private set
@@ -73,6 +77,9 @@ class AddEditTaskViewModel @Inject constructor(
                             taskName = taskName, categoryName = categoryName, id = task?.id
                         )
                     )
+
+                    service.showNotification(task = taskName)
+
                     sendUiEvent(UiEvent.PopBackStack)
                 }
             }

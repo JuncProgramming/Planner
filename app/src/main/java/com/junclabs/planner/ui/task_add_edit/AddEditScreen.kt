@@ -1,6 +1,8 @@
 package com.junclabs.planner.ui.task_add_edit
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
@@ -11,17 +13,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.junclabs.AlarmItem
+import com.junclabs.planner.AndroidAlarmScheduler
 import com.junclabs.planner.R
 import com.junclabs.planner.ui.SnackBarController
 import com.junclabs.planner.ui.theme.RoundedShapes
 import com.junclabs.planner.util.UiEvent
 import kotlinx.coroutines.flow.collectLatest
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditScreen(
     onPopBackStack: () -> Unit, viewModel: AddEditTaskViewModel = hiltViewModel()
 ) {
+    val scheduler: AndroidAlarmScheduler
+    var alarmItem: AlarmItem? = null
     val coroutineScope = rememberCoroutineScope()
     val snackBarController = SnackBarController(coroutineScope)
     val snackbarHostState = remember { SnackbarHostState() }
@@ -32,6 +40,7 @@ fun AddEditScreen(
                     snackBarController.cancelActiveJob()
                     onPopBackStack()
                 }
+
                 is UiEvent.ShowSnackbar -> {
                     snackBarController.showSnackBar(
                         message = event.message,
@@ -40,6 +49,7 @@ fun AddEditScreen(
                         snackBarHostState = snackbarHostState
                     )
                 }
+
                 else -> Unit
             }
         }
@@ -80,6 +90,7 @@ fun AddEditScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(
                     horizontal = 16.dp, vertical = 4.dp
                 )
@@ -102,9 +113,18 @@ fun AddEditScreen(
                 modifier = Modifier
                     .fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(48.dp))
+            Divider(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(48.dp))
+            TimePicker()
+            Spacer(modifier = Modifier.height(24.dp))
+            Divider(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(48.dp))
+            DatePicker()
             Button(
-                onClick = { viewModel.onEvent(AddEditTaskEvent.OnSaveTodoClick) },
+                onClick = {
+                    viewModel.onEvent(AddEditTaskEvent.OnSaveTodoClick)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
@@ -114,6 +134,43 @@ fun AddEditScreen(
                     tint = MaterialTheme.colorScheme.background
                 )
             }
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimePicker() {
+    val dateTime = LocalDateTime.now()
+
+    val timePickerState = remember {
+        TimePickerState(
+            is24Hour = true,
+            initialHour = dateTime.hour,
+            initialMinute = dateTime.minute
+        )
+    }
+
+    TimePicker(state = timePickerState)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePicker() {
+    val dateTime = LocalDateTime.now()
+
+    val datePickerState = remember {
+        DatePickerState(
+            initialSelectedDateMillis = dateTime.toMillis(),
+            initialDisplayedMonthMillis = null,
+            initialDisplayMode = DisplayMode.Picker,
+            yearRange = (2023..2024)
+
+        )
+    }
+
+    DatePicker(state = datePickerState)
+}
+
+fun LocalDateTime.toMillis() = this.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()

@@ -6,19 +6,19 @@ plugins {
 }
 
 android {
-    namespace 'com.junclabs.planner'
-    compileSdk 33
+    namespace = 'com.junclabs.planner'
+    compileSdk = 33
 
     defaultConfig {
-        applicationId "com.junclabs.planner"
-        minSdk 26
-        targetSdk 33
-        versionCode 3
-        versionName "1.0"
+        applicationId = 'com.junclabs.planner'
+        minSdk = 26
+        targetSdk = 33
+        versionCode = 3
+        versionName = '1.0'
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
         vectorDrawables {
-            useSupportLibrary true
+            useSupportLibrary = true
         }
     }
 
@@ -29,11 +29,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
     buildFeatures {
         compose true
@@ -49,35 +49,36 @@ android {
 }
 
 dependencies {
-    // Accompanist
-    implementation "com.google.accompanist:accompanist-systemuicontroller:0.27.0"
+    implementation'com.google.accompanist:accompanist-permissions:0.28.0'
+
+    implementation'androidx.datastore:datastore-preferences:1.0.0'
 
     // Compose dependencies
-    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
-    implementation "androidx.navigation:navigation-compose:2.6.0-alpha06"
-    implementation 'androidx.activity:activity-compose:1.6.1'
-    implementation "androidx.compose.ui:ui:1.4.0-beta02"
-    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation 'androidx.compose.material3:material3:1.1.0-alpha07'
+    implementation'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
+    implementation'androidx.navigation:navigation-compose:2.6.0-rc01'
+    implementation'androidx.activity:activity-compose:1.7.1'
+    implementation'androidx.compose.ui:ui:1.5.0-alpha04'
+    implementation"androidx.compose.ui:ui-tooling-preview:$compose_version"
+    implementation'androidx.compose.material3:material3:1.1.0-rc01'
 
     // Room components
-    implementation "androidx.room:room-runtime:2.5.0"
-    kapt "androidx.room:room-compiler:2.5.0"
-    implementation "androidx.room:room-ktx:2.5.0"
-    androidTestImplementation "androidx.room:room-testing:2.5.0"
+    implementation'androidx.room:room-runtime:2.5.1'
+    kapt'androidx.room:room-compiler:2.5.1'
+    implementation'androidx.room:room-ktx:2.5.1'
+    androidTestImplementation'androidx.room:room-testing:2.5.1'
 
     //Dagger - Hilt
-    implementation "com.google.dagger:hilt-android:2.44"
-    kapt "com.google.dagger:hilt-android-compiler:2.44"
-    kapt "androidx.hilt:hilt-compiler:1.0.0"
-    implementation 'androidx.hilt:hilt-navigation-compose:1.1.0-alpha01'
+    implementation'com.google.dagger:hilt-android:2.44.2'
+    kapt'com.google.dagger:hilt-android-compiler:2.44'
+    kapt'androidx.hilt:hilt-compiler:1.0.0'
+    implementation'androidx.hilt:hilt-navigation-compose:1.1.0-alpha01'
 
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
-    testImplementation 'junit:junit:4.13.2'
+    implementation'androidx.core:core-ktx:1.10.1'
+    implementation'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    testImplementation'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
-    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
-    debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+    androidTestImplementation'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation"androidx.compose.ui:ui-test-junit4:$compose_version"
+    debugImplementation"androidx.compose.ui:ui-tooling:$compose_version"
+    debugImplementation"androidx.compose.ui:ui-test-manifest:$compose_version"
 }

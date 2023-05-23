@@ -13,4 +13,5 @@
     <string name="notificationsButton_cd">Notifications</string>
     <string name="coming_soon">Coming soon…</string>
     <string name="fab_cd">Add</string>
+    <string name="settings_cd">Settings</string>
 </resources>

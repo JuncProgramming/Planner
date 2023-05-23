@@ -30,11 +30,16 @@ class TaskListViewModel @Inject constructor(private val repository: TaskReposito
         when (event) {
             is TaskListEvent.OnAddTask -> {
                 viewModelScope.launch(Dispatchers.IO) {
-                    sendUiEvent(UiEvent.Navigate(Routes.ADD_EDIT_TASK))
+                    sendUiEvent(UiEvent.Navigate(Routes.ADDEDITTASK.route))
+                }
+            }
+            is TaskListEvent.OnSettingsClick -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    sendUiEvent(UiEvent.Navigate(Routes.SETTINGS.route))
                 }
             }
             is TaskListEvent.OnEditClick -> {
-                sendUiEvent(UiEvent.Navigate(Routes.ADD_EDIT_TASK + "?taskId=${event.task.id}"))
+                sendUiEvent(UiEvent.Navigate(Routes.ADDEDITTASK.route + "?taskId=${event.task.id}"))
             }
             is TaskListEvent.OnDeleteTask -> {
                 val context = TaskApp.instance?.context
@@ -59,6 +64,11 @@ class TaskListViewModel @Inject constructor(private val repository: TaskReposito
                     }
                 }
 
+            }
+            TaskListEvent.OnDrawerItemClick -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    sendUiEvent(UiEvent.Navigate(Routes.COLDSHOWER.route))
+                }
             }
         }
     }
