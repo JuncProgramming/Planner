@@ -30,6 +30,7 @@ fun TaskItem(
     viewModel: TaskListViewModel = hiltViewModel()
 ) {
     val permissionState = rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
+    val AlarmPermissionState = rememberPermissionState(permission = Manifest.permission.SCHEDULE_EXACT_ALARM)
     Card(
         shape = RoundedShapes.large,
         colors = CardDefaults.cardColors(
@@ -39,6 +40,7 @@ fun TaskItem(
         Surface(
             color = MaterialTheme.colorScheme.surfaceVariant,
             modifier = modifier.clickable {
+                AlarmPermissionState.launchPermissionRequest()
                 permissionState.launchPermissionRequest()
                 viewModel.onEvent(TaskListEvent.OnEditClick(task))
             }

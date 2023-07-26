@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -113,14 +114,7 @@ fun AddEditScreen(
                 modifier = Modifier
                     .fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(48.dp))
-            Divider(modifier = Modifier.height(3.dp))
-            Spacer(modifier = Modifier.height(48.dp))
-            TimePicker()
-            Spacer(modifier = Modifier.height(24.dp))
-            Divider(modifier = Modifier.height(3.dp))
-            Spacer(modifier = Modifier.height(48.dp))
-            DatePicker()
+            Spacer(modifier = Modifier.height(12.dp))
             Button(
                 onClick = {
                     viewModel.onEvent(AddEditTaskEvent.OnSaveTodoClick)
@@ -134,6 +128,42 @@ fun AddEditScreen(
                     tint = MaterialTheme.colorScheme.background
                 )
             }
+            Spacer(modifier = Modifier.height(48.dp))
+            TimePicker(viewModel)
+            Spacer(modifier = Modifier.height(24.dp))
+            Divider(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(48.dp))
+            DatePicker(viewModel)
+            Row() {
+                Button(
+                    onClick = {
+                        viewModel.onEvent(AddEditTaskEvent.OnSaveAlarmClick)
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 3.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_alarm_on_24),
+                        contentDescription = stringResource(R.string.button_cd),
+                        tint = MaterialTheme.colorScheme.background
+                    )
+                }
+                Button(
+                    onClick = {
+                        viewModel.onEvent(AddEditTaskEvent.OnCancelAlarmClick)
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 3.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_alarm_off_24),
+                        contentDescription = stringResource(R.string.button_cd),
+                        tint = MaterialTheme.colorScheme.background
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(12.dp))
         }
     }
@@ -141,7 +171,7 @@ fun AddEditScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimePicker() {
+fun TimePicker(viewModel: AddEditTaskViewModel) {
     val dateTime = LocalDateTime.now()
 
     val timePickerState = remember {
@@ -153,24 +183,23 @@ fun TimePicker() {
     }
 
     TimePicker(state = timePickerState)
+    viewModel.minutes = timePickerState.minute.toString()
+    viewModel.hours = timePickerState.hour.toString()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatePicker() {
+fun DatePicker(viewModel: AddEditTaskViewModel) {
     val dateTime = LocalDateTime.now()
 
-    val datePickerState = remember {
-        DatePickerState(
-            initialSelectedDateMillis = dateTime.toMillis(),
-            initialDisplayedMonthMillis = null,
-            initialDisplayMode = DisplayMode.Picker,
-            yearRange = (2023..2024)
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = dateTime.toMillis(),
+        initialDisplayedMonthMillis = null,
+        initialDisplayMode = DisplayMode.Picker,
+        yearRange = (2023..2024),
+    )
 
-        )
-    }
-
-    DatePicker(state = datePickerState)
+    DatePicker(datePickerState)
 }
 
 fun LocalDateTime.toMillis() = this.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()

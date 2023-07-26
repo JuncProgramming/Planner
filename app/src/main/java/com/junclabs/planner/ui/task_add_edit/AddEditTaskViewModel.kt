@@ -1,30 +1,38 @@
 package com.junclabs.planner.ui.task_add_edit
 
-import android.app.Application
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.junclabs.planner.NotificationService
+import com.junclabs.AlarmItem
+import com.junclabs.planner.AndroidAlarmScheduler
 import com.junclabs.planner.R
 import com.junclabs.planner.TaskApp
 import com.junclabs.planner.data.Task
 import com.junclabs.planner.data.repository.TaskRepositoryImplementation
 import com.junclabs.planner.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class AddEditTaskViewModel @Inject constructor(
-    private val repository: TaskRepositoryImplementation, savedStateHandle: SavedStateHandle, application: Application
+    private val repository: TaskRepositoryImplementation,
+    savedStateHandle: SavedStateHandle,
+    @ApplicationContext context: Context
 ) : ViewModel() {
+    var minutes by
+    mutableStateOf("")
 
-    private val service = NotificationService(context = application)
+    var hours by
+    mutableStateOf("")
 
     var task by mutableStateOf<Task?>(null)
         private set
@@ -34,6 +42,9 @@ class AddEditTaskViewModel @Inject constructor(
 
     var categoryName by mutableStateOf("")
         private set
+
+    private val scheduler = AndroidAlarmScheduler(context)
+    var alarmItem: AlarmItem? = null
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -56,9 +67,11 @@ class AddEditTaskViewModel @Inject constructor(
             is AddEditTaskEvent.OnTaskNameChange -> {
                 taskName = event.taskName
             }
+
             is AddEditTaskEvent.OnCategoryNameChange -> {
                 categoryName = event.categoryName
             }
+
             is AddEditTaskEvent.OnSaveTodoClick -> {
                 val context = TaskApp.instance?.context
                 viewModelScope.launch {
@@ -77,11 +90,16 @@ class AddEditTaskViewModel @Inject constructor(
                             taskName = taskName, categoryName = categoryName, id = task?.id
                         )
                     )
-
-                    service.showNotification(task = taskName)
-
-                    sendUiEvent(UiEvent.PopBackStack)
                 }
+            }
+
+            AddEditTaskEvent.OnSaveAlarmClick -> {
+                alarmItem = AlarmItem(time = LocalDateTime.now().plusMinutes(minutes.toLong()).plusHours(hours.toLong()), task = taskName)
+                alarmItem?.let(scheduler::schedule)
+            }
+
+            AddEditTaskEvent.OnCancelAlarmClick -> {
+                alarmItem?.let(scheduler::cancel)
             }
         }
     }

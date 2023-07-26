@@ -4,4 +4,6 @@ sealed class AddEditTaskEvent {
     data class OnTaskNameChange(val taskName: String) : AddEditTaskEvent()
     data class OnCategoryNameChange(val categoryName: String) : AddEditTaskEvent()
     object OnSaveTodoClick : AddEditTaskEvent()
+    object OnSaveAlarmClick : AddEditTaskEvent()
+    object OnCancelAlarmClick : AddEditTaskEvent()
 }
