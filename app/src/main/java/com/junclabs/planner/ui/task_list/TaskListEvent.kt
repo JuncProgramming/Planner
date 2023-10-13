@@ -7,7 +7,4 @@ sealed class TaskListEvent {
     object OnUndoDeleteTask : TaskListEvent()
     data class OnEditClick(val task: Task) : TaskListEvent()
     object OnAddTask : TaskListEvent()
-    object OnSettingsClick: TaskListEvent()
-    object OnDrawerItemClick: TaskListEvent()
-
 }

@@ -1,7 +1,6 @@
 package com.junclabs.planner.data
 
 import androidx.room.*
-import androidx.room.Dao
 import kotlinx.coroutines.flow.Flow
 
 @Dao

@@ -8,7 +8,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.junclabs.planner.ui.cold_shower.ColdShowerScreen
 import com.junclabs.planner.ui.task_add_edit.AddEditScreen
 import com.junclabs.planner.ui.task_list.TasksListScreen
 
@@ -20,13 +19,6 @@ fun Navigation(navController: NavHostController) {
             Routes.TASKSLIST.route
         ) {
             TasksListScreen(onNavigate = {
-                navController.navigate(it.route)
-            })
-        }
-        composable(
-            Routes.COLDSHOWER.route
-        ) {
-            ColdShowerScreen(onNavigate = {
                 navController.navigate(it.route)
             })
         }
