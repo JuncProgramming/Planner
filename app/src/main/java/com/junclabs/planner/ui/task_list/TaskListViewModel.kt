@@ -6,7 +6,7 @@ import com.junclabs.planner.R
 import com.junclabs.planner.TaskApp
 import com.junclabs.planner.data.Task
 import com.junclabs.planner.data.repository.TaskRepositoryImplementation
-import com.junclabs.planner.util.Routes
+import com.junclabs.planner.navigation.Routes
 import com.junclabs.planner.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -62,6 +62,9 @@ class TaskListViewModel @Inject constructor(private val repository: TaskReposito
                     }
                 }
 
+            }
+            is TaskListEvent.OnDrawerNavigationClick -> {
+                sendUiEvent(UiEvent.Navigate(event.navigationItem.route))
             }
         }
     }

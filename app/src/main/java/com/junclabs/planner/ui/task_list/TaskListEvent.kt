@@ -1,5 +1,6 @@
 package com.junclabs.planner.ui.task_list
 
+import com.junclabs.planner.navigation.NavigationItem
 import com.junclabs.planner.data.Task
 
 sealed class TaskListEvent {
@@ -7,4 +8,5 @@ sealed class TaskListEvent {
     object OnUndoDeleteTask : TaskListEvent()
     data class OnEditClick(val task: Task) : TaskListEvent()
     object OnAddTask : TaskListEvent()
+    class OnDrawerNavigationClick(val navigationItem: NavigationItem) : TaskListEvent()
 }

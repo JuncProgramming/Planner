@@ -13,7 +13,7 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.junclabs.planner.ui.theme.PlannerTheme
-import com.junclabs.planner.util.Navigation
+import com.junclabs.planner.navigation.Navigation
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

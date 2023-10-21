@@ -1,4 +1,4 @@
-package com.junclabs.planner.util
+package com.junclabs.planner.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi

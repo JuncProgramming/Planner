@@ -1,4 +1,4 @@
-package com.junclabs.planner.ui
+package com.junclabs.planner.util
 
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState

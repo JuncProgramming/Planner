@@ -12,7 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.junclabs.planner.R
-import com.junclabs.planner.ui.SnackBarController
+import com.junclabs.planner.util.SnackBarController
 import com.junclabs.planner.ui.theme.RoundedShapes
 import com.junclabs.planner.util.UiEvent
 import kotlinx.coroutines.flow.collectLatest
