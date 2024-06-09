@@ -1,0 +1,37 @@
+[versions]
+activity-compose = "1.9.0"
+core-ktx = "1.13.1"
+espresso-core = "3.5.1"
+hilt-android = "2.49"
+hilt-android-compiler = "2.44"
+hilt-compiler = "1.2.0"
+junit = "4.13.2"
+junit-version = "1.1.5"
+lifecycle-runtime-ktx = "2.8.1"
+material3 = "1.2.1"
+room-ktx = "2.6.1"
+room-testing = "2.6.1"
+ui-test-manifest = "1.6.7"
+
+[libraries]
+activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room-ktx" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room-ktx" }
+androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "ui-test-manifest" }
+androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "ui-test-manifest" }
+androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "ui-test-manifest" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
+espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso-core" }
+ext-junit = { module = "androidx.test.ext:junit", version.ref = "junit-version" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt-android" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt-android-compiler" }
+hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hilt-compiler" }
+hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-compiler" }
+junit = { module = "junit:junit", version.ref = "junit" }
+lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
+lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-runtime-ktx" }
+material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room-ktx" }
+room-testing = { module = "androidx.room:room-testing", version.ref = "room-testing" }
+ui = { module = "androidx.compose.ui:ui", version.ref = "ui-test-manifest" }
+ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "ui-test-manifest" }
