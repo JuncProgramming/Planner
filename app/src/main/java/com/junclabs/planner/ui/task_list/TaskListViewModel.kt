@@ -63,9 +63,6 @@ class TaskListViewModel @Inject constructor(private val repository: TaskReposito
                 }
 
             }
-            is TaskListEvent.OnDrawerNavigationClick -> {
-                sendUiEvent(UiEvent.Navigate(event.navigationItem.route))
-            }
         }
     }
 
