@@ -21,7 +21,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -108,11 +108,13 @@ fun TasksListScreen(
             }
         },
         topBar = {
-            TopAppBar(title = { Text(stringResource(R.string.planner_name)) },
+            TopAppBar(
+                title = { Text(stringResource(R.string.planner_name)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.background
-                ))
+                )
+            )
         },
     ) { padding ->
         LazyColumn(
@@ -132,14 +134,11 @@ fun TasksListScreen(
                     }
                     true
                 })
-                SwipeToDismiss(state = dismissState,
-                    directions = setOf(SwipeToDismissBoxValue.EndToStart),
-                    background = { },
-                    dismissContent = {
-                        TaskItem(
-                            task = task, modifier = modifier
-                        )
-                    })
+                SwipeToDismissBox(state = dismissState, backgroundContent = {}, content = {
+                    TaskItem(
+                        task = task, modifier = modifier
+                    )
+                })
             }
         }
     }
