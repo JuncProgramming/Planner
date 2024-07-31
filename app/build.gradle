@@ -50,6 +50,9 @@ android {
 }
 
 dependencies {
+    // Datastore dependencies
+    implementation(libs.androidx.datastore.preferences)
+
     // Compose dependencies
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.activity.compose)
