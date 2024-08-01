@@ -1,28 +1,52 @@
 package com.junclabs.planner.ui.task_list
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.junclabs.planner.R
 import com.junclabs.planner.TaskApp
+import com.junclabs.planner.dI.AppModule
 import com.junclabs.planner.data.Task
+import com.junclabs.planner.data.UserPreferencesRepository
 import com.junclabs.planner.data.repository.TaskRepositoryImplementation
 import com.junclabs.planner.navigation.Routes
 import com.junclabs.planner.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class TaskListViewModel @Inject constructor(private val repository: TaskRepositoryImplementation) :
+class TaskListViewModel @Inject constructor(private val repository: TaskRepositoryImplementation, private val userPreferencesRepository: UserPreferencesRepository) :
     ViewModel() {
 
     val tasks = repository.getTasks()
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
+
+    private val _uiState = MutableStateFlow(TaskListUiState())
+
+    // UI states access for various [DessertReleaseUiState]
+    val uiState: StateFlow<TaskListUiState> =
+        userPreferencesRepository.isDarkMode.map { isDarkMode ->
+            TaskListUiState(isDarkMode)
+        }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = TaskListUiState()
+            )
 
     private var deletedTask: Task? = null
 
@@ -71,4 +95,26 @@ class TaskListViewModel @Inject constructor(private val repository: TaskReposito
             _uiEvent.send(event)
         }
     }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as TaskApp)
+                TaskListViewModel(repository = , userPreferencesRepository = application.userPreferencesRepository)
+            }
+        }
+    }
+
+    fun selectMode(isDarkMode: Boolean) {
+        _uiState.value = TaskListUiState(isDarkMode)
+        viewModelScope.launch {
+            userPreferencesRepository.saveLayoutPreference(isDarkMode)
+        }
+    }
+
+    data class TaskListUiState(
+        val isDarkMode: Boolean = true,
+        val toggleIcon: Int =
+            if (isDarkMode) R.drawable.baseline_dark_mode_24 else R.drawable.baseline_light_mode_24
+    )
 }
