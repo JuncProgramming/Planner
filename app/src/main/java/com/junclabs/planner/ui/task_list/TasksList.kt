@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -35,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,8 +52,11 @@ import kotlinx.coroutines.flow.collectLatest
 fun TasksListScreen(
     modifier: Modifier = Modifier,
     onNavigate: (UiEvent.Navigate) -> Unit,
-    viewModel: TaskListViewModel = hiltViewModel()
+    viewModel: TaskListViewModel = hiltViewModel(),
+    uiState: TaskListViewModel.TaskListUiState,
+    selectMode: (Boolean) -> Unit
 ) {
+    val isDarkMode = uiState.isDarkMode
     val tasks = viewModel.tasks.collectAsState(initial = emptyList())
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -113,7 +118,18 @@ fun TasksListScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.background
-                )
+                ),
+                actions = {
+                    IconButton(
+                        onClick = { selectMode(!isDarkMode) },
+                        content = {
+                            Icon(
+                                painter = painterResource(uiState.toggleIcon),
+                                contentDescription = null
+                            )
+                        }
+                    )
+                }
             )
         },
     ) { padding ->
