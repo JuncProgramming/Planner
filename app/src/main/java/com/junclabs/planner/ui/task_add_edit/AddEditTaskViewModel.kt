@@ -1,5 +1,6 @@
 package com.junclabs.planner.ui.task_add_edit
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,11 +8,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.junclabs.planner.R
-import com.junclabs.planner.TaskApp
 import com.junclabs.planner.data.Task
-import com.junclabs.planner.data.repository.TaskRepositoryImplementation
+import com.junclabs.planner.data.repository.TaskRepository
 import com.junclabs.planner.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditTaskViewModel @Inject constructor(
-    private val repository: TaskRepositoryImplementation,
+    @ApplicationContext val context: Context,
+    private val repository: TaskRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     var task by mutableStateOf<Task?>(null)
@@ -58,16 +60,13 @@ class AddEditTaskViewModel @Inject constructor(
             }
 
             is AddEditTaskEvent.OnSaveTodoClick -> {
-                val context = TaskApp.instance?.context
                 viewModelScope.launch {
                     if (taskName.isBlank()) {
-                        if (context != null) {
-                            sendUiEvent(
-                                UiEvent.ShowSnackbar(
-                                    message = context.getString(R.string.snackbar_empty)
-                                )
+                        sendUiEvent(
+                            UiEvent.ShowSnackbar(
+                                message = context.getString(R.string.snackbar_empty)
                             )
-                        }
+                        )
                         return@launch
                     }
                     repository.addTask(
