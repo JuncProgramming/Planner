@@ -1,0 +1,453 @@
+Index: app/src/main/java/com/junclabs/planner/navigation/Navigation.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.junclabs.planner.navigation\r\n\r\nimport android.os.Build\r\nimport androidx.annotation.RequiresApi\r\nimport androidx.compose.runtime.*\r\nimport androidx.navigation.NavHostController\r\nimport androidx.navigation.NavType\r\nimport androidx.navigation.compose.NavHost\r\nimport androidx.navigation.compose.composable\r\nimport androidx.navigation.navArgument\r\nimport com.junclabs.planner.ui.task_add_edit.AddEditScreen\r\nimport com.junclabs.planner.ui.task_list.TasksListScreen\r\n\r\n@RequiresApi(Build.VERSION_CODES.TIRAMISU)\r\n@Composable\r\nfun Navigation(navController: NavHostController) {\r\n    NavHost(navController = navController, startDestination = Routes.TASKSLIST.route) {\r\n        composable(\r\n            Routes.TASKSLIST.route\r\n        ) {\r\n            TasksListScreen(onNavigate = {\r\n                navController.navigate(it.route)\r\n            })\r\n        }\r\n        composable(\r\n            route = Routes.ADDEDITTASK.route + \"?taskId={taskId}\",\r\n            arguments = listOf(navArgument(name = \"taskId\") {\r\n                type = NavType.IntType\r\n                defaultValue = -1\r\n            })\r\n        ) {\r\n            AddEditScreen(\r\n                onPopBackStack = {\r\n                    navController.popBackStack()\r\n                })\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/junclabs/planner/navigation/Navigation.kt b/app/src/main/java/com/junclabs/planner/navigation/Navigation.kt
+--- a/app/src/main/java/com/junclabs/planner/navigation/Navigation.kt	(revision 6fd07cab8f775468c5a6541f6d90e54afb5d61c0)
++++ b/app/src/main/java/com/junclabs/planner/navigation/Navigation.kt	(date 1722559999600)
+@@ -3,24 +3,29 @@
+ import android.os.Build
+ import androidx.annotation.RequiresApi
+ import androidx.compose.runtime.*
++import androidx.lifecycle.viewmodel.compose.viewModel
+ import androidx.navigation.NavHostController
+ import androidx.navigation.NavType
+ import androidx.navigation.compose.NavHost
+ import androidx.navigation.compose.composable
+ import androidx.navigation.navArgument
+ import com.junclabs.planner.ui.task_add_edit.AddEditScreen
++import com.junclabs.planner.ui.task_list.TaskListViewModel
+ import com.junclabs.planner.ui.task_list.TasksListScreen
+ 
+ @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+ @Composable
+ fun Navigation(navController: NavHostController) {
++    val taskListViewModel: TaskListViewModel = viewModel(
++        factory = TaskListViewModel.Factory
++    )
+     NavHost(navController = navController, startDestination = Routes.TASKSLIST.route) {
+         composable(
+             Routes.TASKSLIST.route
+         ) {
+             TasksListScreen(onNavigate = {
+                 navController.navigate(it.route)
+-            })
++            }, selectMode = taskListViewModel::selectMode, uiState = taskListViewModel.uiState.collectAsState().value)
+         }
+         composable(
+             route = Routes.ADDEDITTASK.route + "?taskId={taskId}",
+Index: app/src/main/java/com/junclabs/planner/ui/task_list/TaskListViewModel.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.junclabs.planner.ui.task_list\r\n\r\nimport androidx.lifecycle.ViewModel\r\nimport androidx.lifecycle.viewModelScope\r\nimport com.junclabs.planner.R\r\nimport com.junclabs.planner.TaskApp\r\nimport com.junclabs.planner.data.Task\r\nimport com.junclabs.planner.data.repository.TaskRepositoryImplementation\r\nimport com.junclabs.planner.navigation.Routes\r\nimport com.junclabs.planner.util.UiEvent\r\nimport dagger.hilt.android.lifecycle.HiltViewModel\r\nimport kotlinx.coroutines.Dispatchers\r\nimport kotlinx.coroutines.channels.Channel\r\nimport kotlinx.coroutines.flow.receiveAsFlow\r\nimport kotlinx.coroutines.launch\r\nimport javax.inject.Inject\r\n\r\n@HiltViewModel\r\nclass TaskListViewModel @Inject constructor(private val repository: TaskRepositoryImplementation) :\r\n    ViewModel() {\r\n\r\n    val tasks = repository.getTasks()\r\n\r\n    private val _uiEvent = Channel<UiEvent>()\r\n    val uiEvent = _uiEvent.receiveAsFlow()\r\n\r\n    private var deletedTask: Task? = null\r\n\r\n    fun onEvent(event: TaskListEvent) {\r\n        when (event) {\r\n            is TaskListEvent.OnAddTask -> {\r\n                viewModelScope.launch(Dispatchers.IO) {\r\n                    sendUiEvent(UiEvent.Navigate(Routes.ADDEDITTASK.route))\r\n                }\r\n            }\r\n\r\n            is TaskListEvent.OnEditClick -> {\r\n                sendUiEvent(UiEvent.Navigate(Routes.ADDEDITTASK.route + \"?taskId=${event.task.id}\"))\r\n            }\r\n\r\n            is TaskListEvent.OnDeleteTask -> {\r\n                val context = TaskApp.instance?.context\r\n                viewModelScope.launch(Dispatchers.IO) {\r\n                    deletedTask = event.task\r\n                    repository.deleteTask(event.task)\r\n                    if (context != null) {\r\n                        sendUiEvent(\r\n                            UiEvent.ShowSnackbar(\r\n                                message = context.getString(R.string.snackbar_deleted),\r\n                                action = context.getString(R.string.snackbar_action)\r\n                            )\r\n                        )\r\n                    }\r\n                }\r\n\r\n            }\r\n\r\n            is TaskListEvent.OnUndoDeleteTask -> {\r\n                deletedTask?.let { task ->\r\n                    viewModelScope.launch(Dispatchers.IO) {\r\n                        repository.addTask(task)\r\n                    }\r\n                }\r\n\r\n            }\r\n        }\r\n    }\r\n\r\n    private fun sendUiEvent(event: UiEvent) {\r\n        viewModelScope.launch(Dispatchers.IO) {\r\n            _uiEvent.send(event)\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/junclabs/planner/ui/task_list/TaskListViewModel.kt b/app/src/main/java/com/junclabs/planner/ui/task_list/TaskListViewModel.kt
+--- a/app/src/main/java/com/junclabs/planner/ui/task_list/TaskListViewModel.kt	(revision 6fd07cab8f775468c5a6541f6d90e54afb5d61c0)
++++ b/app/src/main/java/com/junclabs/planner/ui/task_list/TaskListViewModel.kt	(date 1722559468135)
+@@ -1,22 +1,33 @@
+ package com.junclabs.planner.ui.task_list
+ 
+ import androidx.lifecycle.ViewModel
++import androidx.lifecycle.ViewModelProvider
++import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+ import androidx.lifecycle.viewModelScope
++import androidx.lifecycle.viewmodel.initializer
++import androidx.lifecycle.viewmodel.viewModelFactory
+ import com.junclabs.planner.R
+ import com.junclabs.planner.TaskApp
++import com.junclabs.planner.dI.AppModule
+ import com.junclabs.planner.data.Task
++import com.junclabs.planner.data.UserPreferencesRepository
+ import com.junclabs.planner.data.repository.TaskRepositoryImplementation
+ import com.junclabs.planner.navigation.Routes
+ import com.junclabs.planner.util.UiEvent
+ import dagger.hilt.android.lifecycle.HiltViewModel
+ import kotlinx.coroutines.Dispatchers
+ import kotlinx.coroutines.channels.Channel
++import kotlinx.coroutines.flow.MutableStateFlow
++import kotlinx.coroutines.flow.SharingStarted
++import kotlinx.coroutines.flow.StateFlow
++import kotlinx.coroutines.flow.map
++import kotlinx.coroutines.flow.stateIn
+ import kotlinx.coroutines.flow.receiveAsFlow
+ import kotlinx.coroutines.launch
+ import javax.inject.Inject
+ 
+ @HiltViewModel
+-class TaskListViewModel @Inject constructor(private val repository: TaskRepositoryImplementation) :
++class TaskListViewModel @Inject constructor(private val repository: TaskRepositoryImplementation, private val userPreferencesRepository: UserPreferencesRepository) :
+     ViewModel() {
+ 
+     val tasks = repository.getTasks()
+@@ -24,6 +35,19 @@
+     private val _uiEvent = Channel<UiEvent>()
+     val uiEvent = _uiEvent.receiveAsFlow()
+ 
++    private val _uiState = MutableStateFlow(TaskListUiState())
++
++    // UI states access for various [DessertReleaseUiState]
++    val uiState: StateFlow<TaskListUiState> =
++        userPreferencesRepository.isDarkMode.map { isDarkMode ->
++            TaskListUiState(isDarkMode)
++        }
++            .stateIn(
++                scope = viewModelScope,
++                started = SharingStarted.WhileSubscribed(5_000),
++                initialValue = TaskListUiState()
++            )
++
+     private var deletedTask: Task? = null
+ 
+     fun onEvent(event: TaskListEvent) {
+@@ -71,4 +95,26 @@
+             _uiEvent.send(event)
+         }
+     }
++
++    companion object {
++        val Factory: ViewModelProvider.Factory = viewModelFactory {
++            initializer {
++                val application = (this[APPLICATION_KEY] as TaskApp)
++                TaskListViewModel(repository = , userPreferencesRepository = application.userPreferencesRepository)
++            }
++        }
++    }
++
++    fun selectMode(isDarkMode: Boolean) {
++        _uiState.value = TaskListUiState(isDarkMode)
++        viewModelScope.launch {
++            userPreferencesRepository.saveLayoutPreference(isDarkMode)
++        }
++    }
++
++    data class TaskListUiState(
++        val isDarkMode: Boolean = true,
++        val toggleIcon: Int =
++            if (isDarkMode) R.drawable.baseline_dark_mode_24 else R.drawable.baseline_light_mode_24
++    )
+ }
+Index: app/src/main/java/com/junclabs/planner/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.junclabs.planner\r\n\r\nimport android.os.Build\r\nimport android.os.Bundle\r\nimport androidx.activity.ComponentActivity\r\nimport androidx.activity.compose.setContent\r\nimport androidx.annotation.RequiresApi\r\nimport androidx.compose.foundation.layout.fillMaxSize\r\nimport androidx.compose.material3.MaterialTheme\r\nimport androidx.compose.material3.Surface\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.core.view.WindowCompat\r\nimport androidx.navigation.NavHostController\r\nimport androidx.navigation.compose.rememberNavController\r\nimport com.junclabs.planner.ui.theme.PlannerTheme\r\nimport com.junclabs.planner.navigation.Navigation\r\nimport dagger.hilt.android.AndroidEntryPoint\r\n\r\n@AndroidEntryPoint\r\nclass MainActivity : ComponentActivity() {\r\n    private lateinit var navController: NavHostController\r\n\r\n    @RequiresApi(Build.VERSION_CODES.TIRAMISU)\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n        WindowCompat.setDecorFitsSystemWindows(window, false)\r\n        setContent {\r\n            PlannerTheme {\r\n                Surface(\r\n                    color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()\r\n                ) {\r\n                    navController = rememberNavController()\r\n                    Navigation(navController = navController)\r\n                }\r\n            }\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/junclabs/planner/MainActivity.kt b/app/src/main/java/com/junclabs/planner/MainActivity.kt
+--- a/app/src/main/java/com/junclabs/planner/MainActivity.kt	(revision 6fd07cab8f775468c5a6541f6d90e54afb5d61c0)
++++ b/app/src/main/java/com/junclabs/planner/MainActivity.kt	(date 1722563983898)
+@@ -14,6 +14,7 @@
+ import androidx.navigation.compose.rememberNavController
+ import com.junclabs.planner.ui.theme.PlannerTheme
+ import com.junclabs.planner.navigation.Navigation
++import com.junclabs.planner.ui.task_list.TaskListViewModel
+ import dagger.hilt.android.AndroidEntryPoint
+ 
+ @AndroidEntryPoint
+@@ -25,7 +26,9 @@
+         super.onCreate(savedInstanceState)
+         WindowCompat.setDecorFitsSystemWindows(window, false)
+         setContent {
+-            PlannerTheme {
++            val uiState = TaskListViewModel.TaskListUiState()
++            val isDarkMode = uiState.isDarkMode
++            PlannerTheme(darkTheme = isDarkMode) {
+                 Surface(
+                     color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()
+                 ) {
+Index: app/src/main/java/com/junclabs/planner/ui/task_list/TasksList.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.junclabs.planner.ui.task_list\r\n\r\nimport android.os.Build\r\nimport androidx.annotation.RequiresApi\r\nimport androidx.compose.foundation.layout.Arrangement.spacedBy\r\nimport androidx.compose.foundation.layout.PaddingValues\r\nimport androidx.compose.foundation.layout.fillMaxSize\r\nimport androidx.compose.foundation.layout.padding\r\nimport androidx.compose.foundation.lazy.LazyColumn\r\nimport androidx.compose.foundation.lazy.items\r\nimport androidx.compose.foundation.lazy.rememberLazyListState\r\nimport androidx.compose.material.icons.Icons\r\nimport androidx.compose.material.icons.filled.Add\r\nimport androidx.compose.material3.ExperimentalMaterial3Api\r\nimport androidx.compose.material3.FloatingActionButton\r\nimport androidx.compose.material3.Icon\r\nimport androidx.compose.material3.MaterialTheme\r\nimport androidx.compose.material3.Scaffold\r\nimport androidx.compose.material3.Snackbar\r\nimport androidx.compose.material3.SnackbarDuration\r\nimport androidx.compose.material3.SnackbarHost\r\nimport androidx.compose.material3.SnackbarHostState\r\nimport androidx.compose.material3.SnackbarResult\r\nimport androidx.compose.material3.SwipeToDismissBox\r\nimport androidx.compose.material3.SwipeToDismissBoxValue\r\nimport androidx.compose.material3.Text\r\nimport androidx.compose.material3.TopAppBar\r\nimport androidx.compose.material3.TopAppBarDefaults\r\nimport androidx.compose.material3.rememberSwipeToDismissBoxState\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.runtime.LaunchedEffect\r\nimport androidx.compose.runtime.collectAsState\r\nimport androidx.compose.runtime.getValue\r\nimport androidx.compose.runtime.remember\r\nimport androidx.compose.runtime.rememberCoroutineScope\r\nimport androidx.compose.runtime.rememberUpdatedState\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.res.stringResource\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.hilt.navigation.compose.hiltViewModel\r\nimport com.junclabs.planner.R\r\nimport com.junclabs.planner.ui.theme.RoundedShapes\r\nimport com.junclabs.planner.util.SnackBarController\r\nimport com.junclabs.planner.util.UiEvent\r\nimport kotlinx.coroutines.flow.collectLatest\r\n\r\n@RequiresApi(Build.VERSION_CODES.TIRAMISU)\r\n@OptIn(ExperimentalMaterial3Api::class)\r\n@Composable\r\nfun TasksListScreen(\r\n    modifier: Modifier = Modifier,\r\n    onNavigate: (UiEvent.Navigate) -> Unit,\r\n    viewModel: TaskListViewModel = hiltViewModel()\r\n) {\r\n    val tasks = viewModel.tasks.collectAsState(initial = emptyList())\r\n    val snackbarHostState = remember { SnackbarHostState() }\r\n    val coroutineScope = rememberCoroutineScope()\r\n    val snackBarController = SnackBarController(coroutineScope)\r\n    LaunchedEffect(key1 = true) {\r\n        viewModel.uiEvent.collectLatest { event ->\r\n            when (event) {\r\n                is UiEvent.ShowSnackbar -> {\r\n                    val result = snackBarController.showSnackBar(\r\n                        message = event.message,\r\n                        actionLabel = event.action,\r\n                        duration = SnackbarDuration.Long,\r\n                        snackBarHostState = snackbarHostState\r\n                    )\r\n                    if (result == SnackbarResult.ActionPerformed) {\r\n                        viewModel.onEvent(TaskListEvent.OnUndoDeleteTask)\r\n                    }\r\n                }\r\n\r\n                is UiEvent.Navigate -> {\r\n                    //if you want to hide the snackBar\r\n                    snackBarController.cancelActiveJob()\r\n                    onNavigate(event)\r\n                }\r\n\r\n                else -> Unit\r\n            }\r\n        }\r\n    }\r\n    Scaffold(\r\n        snackbarHost = {\r\n            SnackbarHost(snackbarHostState) { data ->\r\n                Snackbar(\r\n                    shape = RoundedShapes.medium,\r\n                    actionColor = MaterialTheme.colorScheme.primary,\r\n                    contentColor = MaterialTheme.colorScheme.background,\r\n                    snackbarData = data\r\n                )\r\n            }\r\n        },\r\n        floatingActionButton = {\r\n            FloatingActionButton(\r\n                shape = RoundedShapes.medium,\r\n                onClick = {\r\n                    viewModel.onEvent(TaskListEvent.OnAddTask)\r\n                },\r\n                containerColor = MaterialTheme.colorScheme.primary,\r\n                contentColor = MaterialTheme.colorScheme.background\r\n            ) {\r\n                Icon(\r\n                    imageVector = Icons.Default.Add,\r\n                    contentDescription = stringResource(R.string.fab_cd)\r\n                )\r\n            }\r\n        },\r\n        topBar = {\r\n            TopAppBar(\r\n                title = { Text(stringResource(R.string.planner_name)) },\r\n                colors = TopAppBarDefaults.topAppBarColors(\r\n                    containerColor = MaterialTheme.colorScheme.primary,\r\n                    titleContentColor = MaterialTheme.colorScheme.background\r\n                )\r\n            )\r\n        },\r\n    ) { padding ->\r\n        LazyColumn(\r\n            state = rememberLazyListState(),\r\n            verticalArrangement = spacedBy(12.dp),\r\n            contentPadding = PaddingValues(vertical = 16.dp),\r\n            modifier = modifier\r\n                .fillMaxSize()\r\n                .padding(padding)\r\n                .padding(horizontal = 16.dp),\r\n        ) {\r\n            items(items = tasks.value, key = { task -> task.hashCode() }) { task ->\r\n                val currentTask by rememberUpdatedState(newValue = task)\r\n                val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {\r\n                    if (it == SwipeToDismissBoxValue.EndToStart) {\r\n                        viewModel.onEvent(TaskListEvent.OnDeleteTask(currentTask))\r\n                    }\r\n                    true\r\n                })\r\n                SwipeToDismissBox(state = dismissState, backgroundContent = {}, content = {\r\n                    TaskItem(\r\n                        task = task, modifier = modifier\r\n                    )\r\n                })\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/junclabs/planner/ui/task_list/TasksList.kt b/app/src/main/java/com/junclabs/planner/ui/task_list/TasksList.kt
+--- a/app/src/main/java/com/junclabs/planner/ui/task_list/TasksList.kt	(revision 6fd07cab8f775468c5a6541f6d90e54afb5d61c0)
++++ b/app/src/main/java/com/junclabs/planner/ui/task_list/TasksList.kt	(date 1722541396792)
+@@ -14,6 +14,7 @@
+ import androidx.compose.material3.ExperimentalMaterial3Api
+ import androidx.compose.material3.FloatingActionButton
+ import androidx.compose.material3.Icon
++import androidx.compose.material3.IconButton
+ import androidx.compose.material3.MaterialTheme
+ import androidx.compose.material3.Scaffold
+ import androidx.compose.material3.Snackbar
+@@ -35,6 +36,7 @@
+ import androidx.compose.runtime.rememberCoroutineScope
+ import androidx.compose.runtime.rememberUpdatedState
+ import androidx.compose.ui.Modifier
++import androidx.compose.ui.res.painterResource
+ import androidx.compose.ui.res.stringResource
+ import androidx.compose.ui.unit.dp
+ import androidx.hilt.navigation.compose.hiltViewModel
+@@ -50,8 +52,11 @@
+ fun TasksListScreen(
+     modifier: Modifier = Modifier,
+     onNavigate: (UiEvent.Navigate) -> Unit,
+-    viewModel: TaskListViewModel = hiltViewModel()
++    viewModel: TaskListViewModel = hiltViewModel(),
++    uiState: TaskListViewModel.TaskListUiState,
++    selectMode: (Boolean) -> Unit
+ ) {
++    val isDarkMode = uiState.isDarkMode
+     val tasks = viewModel.tasks.collectAsState(initial = emptyList())
+     val snackbarHostState = remember { SnackbarHostState() }
+     val coroutineScope = rememberCoroutineScope()
+@@ -113,7 +118,18 @@
+                 colors = TopAppBarDefaults.topAppBarColors(
+                     containerColor = MaterialTheme.colorScheme.primary,
+                     titleContentColor = MaterialTheme.colorScheme.background
+-                )
++                ),
++                actions = {
++                    IconButton(
++                        onClick = { selectMode(!isDarkMode) },
++                        content = {
++                            Icon(
++                                painter = painterResource(uiState.toggleIcon),
++                                contentDescription = null
++                            )
++                        }
++                    )
++                }
+             )
+         },
+     ) { padding ->
+Index: app/src/main/java/com/junclabs/planner/TaskApp.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.junclabs.planner\r\n\r\nimport android.app.Application\r\nimport android.content.Context\r\nimport dagger.hilt.android.HiltAndroidApp\r\n\r\n@HiltAndroidApp\r\nclass TaskApp : Application() {\r\n    override fun onCreate() {\r\n        super.onCreate()\r\n        instance = this\r\n    }\r\n\r\n    val context: Context\r\n        get() = this\r\n\r\n    companion object {\r\n        var instance: TaskApp? = null\r\n            private set\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/junclabs/planner/TaskApp.kt b/app/src/main/java/com/junclabs/planner/TaskApp.kt
+--- a/app/src/main/java/com/junclabs/planner/TaskApp.kt	(revision 6fd07cab8f775468c5a6541f6d90e54afb5d61c0)
++++ b/app/src/main/java/com/junclabs/planner/TaskApp.kt	(date 1722559468053)
+@@ -2,13 +2,29 @@
+ 
+ import android.app.Application
+ import android.content.Context
++import androidx.datastore.core.DataStore
++import androidx.datastore.preferences.core.Preferences
++import androidx.datastore.preferences.preferencesDataStore
++import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instance
++import com.junclabs.planner.dI.AppModule
++import com.junclabs.planner.data.TaskDatabase
++import com.junclabs.planner.data.TaskDatabase_Impl
++import com.junclabs.planner.data.UserPreferencesRepository
+ import dagger.hilt.android.HiltAndroidApp
+ 
++private const val MODE_PREFERENCE_NAME = "mode_preferences"
++private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
++    name = MODE_PREFERENCE_NAME
++)
++
+ @HiltAndroidApp
+ class TaskApp : Application() {
++    lateinit var userPreferencesRepository: UserPreferencesRepository
++
+     override fun onCreate() {
+         super.onCreate()
+         instance = this
++        userPreferencesRepository = UserPreferencesRepository(dataStore)
+     }
+ 
+     val context: Context
+Index: gradle/libs.versions.toml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>[versions]\r\nactivity-compose = \"1.9.0\"\r\ncore-ktx = \"1.13.1\"\r\nespresso-core = \"3.5.1\"\r\nhilt-android = \"2.48\"\r\nhilt-android-compiler = \"2.48\"\r\nhilt-compiler = \"1.2.0\"\r\njunit = \"4.13.2\"\r\njunit-version = \"1.1.5\"\r\nlifecycle-runtime-ktx = \"2.8.1\"\r\nmaterial3 = \"1.2.1\"\r\nroom-ktx = \"2.6.1\"\r\nroom-testing = \"2.6.1\"\r\nui-test-manifest = \"1.6.7\"\r\n\r\n[libraries]\r\nactivity-compose = { module = \"androidx.activity:activity-compose\", version.ref = \"activity-compose\" }\r\nandroidx-room-compiler = { module = \"androidx.room:room-compiler\", version.ref = \"room-ktx\" }\r\nandroidx-room-runtime = { module = \"androidx.room:room-runtime\", version.ref = \"room-ktx\" }\r\nandroidx-ui-test-junit4 = { module = \"androidx.compose.ui:ui-test-junit4\", version.ref = \"ui-test-manifest\" }\r\nandroidx-ui-tooling = { module = \"androidx.compose.ui:ui-tooling\", version.ref = \"ui-test-manifest\" }\r\nandroidx-ui-tooling-preview = { module = \"androidx.compose.ui:ui-tooling-preview\", version.ref = \"ui-test-manifest\" }\r\ncore-ktx = { group = \"androidx.core\", name = \"core-ktx\", version.ref = \"core-ktx\" }\r\nespresso-core = { module = \"androidx.test.espresso:espresso-core\", version.ref = \"espresso-core\" }\r\next-junit = { module = \"androidx.test.ext:junit\", version.ref = \"junit-version\" }\r\nhilt-android = { module = \"com.google.dagger:hilt-android\", version.ref = \"hilt-android\" }\r\nhilt-android-compiler = { module = \"com.google.dagger:hilt-android-compiler\", version.ref = \"hilt-android-compiler\" }\r\nhilt-compiler = { module = \"androidx.hilt:hilt-compiler\", version.ref = \"hilt-compiler\" }\r\nhilt-navigation-compose = { module = \"androidx.hilt:hilt-navigation-compose\", version.ref = \"hilt-compiler\" }\r\njunit = { module = \"junit:junit\", version.ref = \"junit\" }\r\nlifecycle-runtime-ktx = { module = \"androidx.lifecycle:lifecycle-runtime-ktx\", version.ref = \"lifecycle-runtime-ktx\" }\r\nlifecycle-viewmodel-compose = { module = \"androidx.lifecycle:lifecycle-viewmodel-compose\", version.ref = \"lifecycle-runtime-ktx\" }\r\nmaterial3 = { module = \"androidx.compose.material3:material3\", version.ref = \"material3\" }\r\nroom-ktx = { module = \"androidx.room:room-ktx\", version.ref = \"room-ktx\" }\r\nroom-testing = { module = \"androidx.room:room-testing\", version.ref = \"room-testing\" }\r\nui = { module = \"androidx.compose.ui:ui\", version.ref = \"ui-test-manifest\" }\r\nui-test-manifest = { module = \"androidx.compose.ui:ui-test-manifest\", version.ref = \"ui-test-manifest\" }
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
+--- a/gradle/libs.versions.toml	(revision 6fd07cab8f775468c5a6541f6d90e54afb5d61c0)
++++ b/gradle/libs.versions.toml	(date 1722539583381)
+@@ -1,6 +1,7 @@
+ [versions]
+ activity-compose = "1.9.0"
+ core-ktx = "1.13.1"
++datastore-preferences = "1.1.1"
+ espresso-core = "3.5.1"
+ hilt-android = "2.48"
+ hilt-android-compiler = "2.48"
+@@ -15,6 +16,7 @@
+ 
+ [libraries]
+ activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
++androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore-preferences" }
+ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room-ktx" }
+ androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room-ktx" }
+ androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "ui-test-manifest" }
+Index: app/src/main/res/drawable/baseline_dark_mode_24.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/drawable/baseline_dark_mode_24.xml b/app/src/main/res/drawable/baseline_dark_mode_24.xml
+new file mode 100644
+--- /dev/null	(date 1722539921665)
++++ b/app/src/main/res/drawable/baseline_dark_mode_24.xml	(date 1722539921665)
+@@ -0,0 +1,5 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="24dp" android:tint="#000000" android:viewportHeight="24" android:viewportWidth="24" android:width="24dp">
++      
++    <path android:fillColor="@android:color/white" android:pathData="M12,3c-4.97,0 -9,4.03 -9,9s4.03,9 9,9s9,-4.03 9,-9c0,-0.46 -0.04,-0.92 -0.1,-1.36c-0.98,1.37 -2.58,2.26 -4.4,2.26c-2.98,0 -5.4,-2.42 -5.4,-5.4c0,-1.81 0.89,-3.42 2.26,-4.4C12.92,3.04 12.46,3 12,3L12,3z"/>
++    
++</vector>
+Index: app/src/main/res/drawable/baseline_light_mode_24.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/drawable/baseline_light_mode_24.xml b/app/src/main/res/drawable/baseline_light_mode_24.xml
+new file mode 100644
+--- /dev/null	(date 1722539947962)
++++ b/app/src/main/res/drawable/baseline_light_mode_24.xml	(date 1722539947962)
+@@ -0,0 +1,5 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="24dp" android:tint="#000000" android:viewportHeight="24" android:viewportWidth="24" android:width="24dp">
++      
++    <path android:fillColor="@android:color/white" android:pathData="M12,7c-2.76,0 -5,2.24 -5,5s2.24,5 5,5s5,-2.24 5,-5S14.76,7 12,7L12,7zM2,13l2,0c0.55,0 1,-0.45 1,-1s-0.45,-1 -1,-1l-2,0c-0.55,0 -1,0.45 -1,1S1.45,13 2,13zM20,13l2,0c0.55,0 1,-0.45 1,-1s-0.45,-1 -1,-1l-2,0c-0.55,0 -1,0.45 -1,1S19.45,13 20,13zM11,2v2c0,0.55 0.45,1 1,1s1,-0.45 1,-1V2c0,-0.55 -0.45,-1 -1,-1S11,1.45 11,2zM11,20v2c0,0.55 0.45,1 1,1s1,-0.45 1,-1v-2c0,-0.55 -0.45,-1 -1,-1C11.45,19 11,19.45 11,20zM5.99,4.58c-0.39,-0.39 -1.03,-0.39 -1.41,0c-0.39,0.39 -0.39,1.03 0,1.41l1.06,1.06c0.39,0.39 1.03,0.39 1.41,0s0.39,-1.03 0,-1.41L5.99,4.58zM18.36,16.95c-0.39,-0.39 -1.03,-0.39 -1.41,0c-0.39,0.39 -0.39,1.03 0,1.41l1.06,1.06c0.39,0.39 1.03,0.39 1.41,0c0.39,-0.39 0.39,-1.03 0,-1.41L18.36,16.95zM19.42,5.99c0.39,-0.39 0.39,-1.03 0,-1.41c-0.39,-0.39 -1.03,-0.39 -1.41,0l-1.06,1.06c-0.39,0.39 -0.39,1.03 0,1.41s1.03,0.39 1.41,0L19.42,5.99zM7.05,18.36c0.39,-0.39 0.39,-1.03 0,-1.41c-0.39,-0.39 -1.03,-0.39 -1.41,0l-1.06,1.06c-0.39,0.39 -0.39,1.03 0,1.41s1.03,0.39 1.41,0L7.05,18.36z"/>
++    
++</vector>
+Index: app/src/androidTest/java/com/junclabs/planner/ExampleInstrumentedTest.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.junclabs.planner\r\n\r\nimport androidx.test.platform.app.InstrumentationRegistry\r\nimport androidx.test.ext.junit.runners.AndroidJUnit4\r\n\r\nimport org.junit.Test\r\nimport org.junit.runner.RunWith\r\n\r\nimport org.junit.Assert.*\r\n\r\n/**\r\n * Instrumented test, which will execute on an Android device.\r\n *\r\n * See [testing documentation](http://d.android.com/tools/testing).\r\n */\r\n@RunWith(AndroidJUnit4::class)\r\nclass ExampleInstrumentedTest {\r\n    @Test\r\n    fun useAppContext() {\r\n        // Context of the app under test.\r\n        val appContext = InstrumentationRegistry.getInstrumentation().targetContext\r\n        assertEquals(\"com.junclabs.planner\", appContext.packageName)\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/androidTest/java/com/junclabs/planner/ExampleInstrumentedTest.kt b/app/src/androidTest/java/com/junclabs/planner/ExampleInstrumentedTest.kt
+--- a/app/src/androidTest/java/com/junclabs/planner/ExampleInstrumentedTest.kt	(revision 6fd07cab8f775468c5a6541f6d90e54afb5d61c0)
++++ b/app/src/androidTest/java/com/junclabs/planner/ExampleInstrumentedTest.kt	(date 1715198313962)
+@@ -1,24 +1,41 @@
+ package com.junclabs.planner
+ 
+-import androidx.test.platform.app.InstrumentationRegistry
+-import androidx.test.ext.junit.runners.AndroidJUnit4
+-
++import androidx.compose.ui.platform.LocalContext
++import androidx.compose.ui.test.junit4.createComposeRule
++import androidx.compose.ui.test.onNodeWithContentDescription
++import androidx.compose.ui.test.onNodeWithText
++import androidx.compose.ui.test.performClick
++import androidx.compose.ui.test.performTextInput
++import androidx.navigation.compose.ComposeNavigator
++import androidx.navigation.testing.TestNavHostController
++import com.junclabs.planner.navigation.Navigation
++import org.junit.Rule
+ import org.junit.Test
+-import org.junit.runner.RunWith
+-
+-import org.junit.Assert.*
+ 
+ /**
+  * Instrumented test, which will execute on an Android device.
+  *
+  * See [testing documentation](http://d.android.com/tools/testing).
+  */
+-@RunWith(AndroidJUnit4::class)
+ class ExampleInstrumentedTest {
++    @get:Rule
++    val composeTestRule = createComposeRule()
++    private lateinit var navController: TestNavHostController
++
+     @Test
+-    fun useAppContext() {
+-        // Context of the app under test.
+-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+-        assertEquals("com.junclabs.planner", appContext.packageName)
++    fun taskGetsAddedCorrectly() {
++        composeTestRule.setContent {
++            navController = TestNavHostController(LocalContext.current)
++            navController.navigatorProvider.addNavigator(ComposeNavigator())
++            Navigation(navController = navController)
++        }
++        composeTestRule.onNodeWithText("+").performClick()
++        composeTestRule.onNodeWithText(R.string.task_textfield.toString()).performTextInput("Test task")
++        composeTestRule.onNodeWithText(R.string.category_textfield.toString()).performTextInput("Test category")
++        composeTestRule.onNodeWithContentDescription(R.string.button_cd.toString()).performClick()
++        val expectedTask = "Test task"
++        val expectedCategory = "Test task"
++        composeTestRule.onNodeWithText(expectedTask).assertExists()
++        composeTestRule.onNodeWithText(expectedCategory).assertExists()
+     }
+ }
+\ No newline at end of file
+Index: app/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>plugins {\r\n    id 'com.android.application'\r\n    id 'org.jetbrains.kotlin.android'\r\n    id 'dagger.hilt.android.plugin'\r\n    id 'com.google.devtools.ksp'\r\n    id 'kotlin-kapt'\r\n}\r\n\r\nandroid {\r\n    namespace = 'com.junclabs.planner'\r\n    compileSdk = 34\r\n\r\n    defaultConfig {\r\n        applicationId = 'com.junclabs.planner'\r\n        minSdk = 26\r\n        targetSdk = 34\r\n        versionCode = 3\r\n        versionName = '1.0'\r\n\r\n        testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'\r\n        vectorDrawables {\r\n            useSupportLibrary = true\r\n        }\r\n    }\r\n\r\n    buildTypes {\r\n        release {\r\n            minifyEnabled false\r\n            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'\r\n        }\r\n    }\r\n    compileOptions {\r\n        sourceCompatibility JavaVersion.VERSION_17\r\n        targetCompatibility JavaVersion.VERSION_17\r\n    }\r\n    kotlinOptions {\r\n        jvmTarget = '17'\r\n    }\r\n    buildFeatures {\r\n        compose true\r\n    }\r\n    composeOptions {\r\n        kotlinCompilerExtensionVersion '1.5.3'\r\n    }\r\n    packagingOptions {\r\n        resources {\r\n            excludes += '/META-INF/{AL2.0,LGPL2.1}'\r\n        }\r\n    }\r\n}\r\n\r\ndependencies {\r\n    // Compose dependencies\r\n    implementation(libs.lifecycle.viewmodel.compose)\r\n    implementation(libs.activity.compose)\r\n    implementation(libs.ui)\r\n    implementation(libs.androidx.ui.tooling.preview)\r\n    implementation(libs.material3)\r\n\r\n    // Room components\r\n    implementation(libs.androidx.room.runtime)\r\n    ksp(libs.androidx.room.compiler)\r\n    implementation(libs.room.ktx)\r\n    androidTestImplementation(libs.room.testing)\r\n\r\n    //Dagger - Hilt\r\n    implementation(libs.hilt.android)\r\n    kapt(libs.hilt.android.compiler)\r\n    kapt(libs.hilt.compiler)\r\n    implementation(libs.hilt.navigation.compose)\r\n\r\n    implementation(libs.core.ktx)\r\n    implementation(libs.lifecycle.runtime.ktx)\r\n    testImplementation(libs.junit)\r\n    androidTestImplementation (libs.ext.junit)\r\n    androidTestImplementation(libs.espresso.core)\r\n    androidTestImplementation(libs.androidx.ui.test.junit4)\r\n    debugImplementation(libs.androidx.ui.tooling)\r\n    debugImplementation(libs.ui.test.manifest)\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/build.gradle b/app/build.gradle
+--- a/app/build.gradle	(revision 6fd07cab8f775468c5a6541f6d90e54afb5d61c0)
++++ b/app/build.gradle	(date 1722539583385)
+@@ -50,6 +50,9 @@
+ }
+ 
+ dependencies {
++    // Datastore dependencies
++    implementation(libs.androidx.datastore.preferences)
++
+     // Compose dependencies
+     implementation(libs.lifecycle.viewmodel.compose)
+     implementation(libs.activity.compose)
+Index: app/src/main/java/com/junclabs/planner/data/UserPreferencesRepository.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/junclabs/planner/data/UserPreferencesRepository.kt b/app/src/main/java/com/junclabs/planner/data/UserPreferencesRepository.kt
+new file mode 100644
+--- /dev/null	(date 1722540325834)
++++ b/app/src/main/java/com/junclabs/planner/data/UserPreferencesRepository.kt	(date 1722540325834)
+@@ -0,0 +1,41 @@
++package com.junclabs.planner.data
++
++import android.util.Log
++import androidx.datastore.core.DataStore
++import androidx.datastore.preferences.core.Preferences
++import androidx.datastore.preferences.core.booleanPreferencesKey
++import androidx.datastore.preferences.core.edit
++import androidx.datastore.preferences.core.emptyPreferences
++import kotlinx.coroutines.flow.Flow
++import kotlinx.coroutines.flow.catch
++import kotlinx.coroutines.flow.map
++import java.io.IOException
++
++class UserPreferencesRepository(
++    private val dataStore: DataStore<Preferences>
++) {
++
++    private companion object {
++        val IS_DARK_MODE = booleanPreferencesKey("is_dark_mode")
++        const val TAG = "UserPreferencesRepo"
++    }
++
++    suspend fun saveLayoutPreference(isDarkMode: Boolean) {
++        dataStore.edit { preferences ->
++            preferences[IS_DARK_MODE] = isDarkMode
++
++        }
++    }
++
++    val isDarkMode: Flow<Boolean> = dataStore.data.catch {
++        if (it is IOException) {
++            Log.e(TAG, "Error reading preferences.", it)
++            emit(emptyPreferences())
++        } else {
++            throw it
++        }
++    }.map { preferences ->
++        preferences[IS_DARK_MODE] ?: true
++    }
++
++}
+\ No newline at end of file

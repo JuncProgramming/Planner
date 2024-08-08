@@ -2,30 +2,25 @@ package com.junclabs.planner.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.*
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.junclabs.planner.ui.task_add_edit.AddEditScreen
-import com.junclabs.planner.ui.task_list.TaskListViewModel
 import com.junclabs.planner.ui.task_list.TasksListScreen
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun Navigation(navController: NavHostController) {
-    val taskListViewModel: TaskListViewModel = viewModel(
-        factory = TaskListViewModel.Factory
-    )
     NavHost(navController = navController, startDestination = Routes.TASKSLIST.route) {
         composable(
             Routes.TASKSLIST.route
         ) {
             TasksListScreen(onNavigate = {
                 navController.navigate(it.route)
-            }, selectMode = taskListViewModel::selectMode, uiState = taskListViewModel.uiState.collectAsState().value)
+            })
         }
         composable(
             route = Routes.ADDEDITTASK.route + "?taskId={taskId}",

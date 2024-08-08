@@ -12,9 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.junclabs.planner.ui.theme.PlannerTheme
 import com.junclabs.planner.navigation.Navigation
-import com.junclabs.planner.ui.task_list.TaskListViewModel
+import com.junclabs.planner.ui.theme.PlannerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -26,9 +25,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            val uiState = TaskListViewModel.TaskListUiState()
-            val isDarkMode = uiState.isDarkMode
-            PlannerTheme(darkTheme = isDarkMode) {
+            PlannerTheme {
                 Surface(
                     color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()
                 ) {
